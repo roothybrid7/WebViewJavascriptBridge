@@ -1,5 +1,10 @@
 #import "WebViewJavascriptBridge.h"
 
+NSString *const WebViewJavascriptBridgeFlushMessage = @"WebViewFlushMessage";
+NSString *const JavascriptBridge = @"javascriptBridge";
+NSString *const JavascriptBridgeMessage = @"message";
+NSString *const JavascriptBridgeWebView = @"webView";
+
 @interface WebViewJavascriptBridge ()
 
 @property (nonatomic,strong) NSMutableArray *startupMessageQueue;
@@ -47,8 +52,17 @@ static NSString *QUEUE_HAS_MESSAGE = @"queuehasmessage";
 - (void)_flushMessageQueueFromWebView:(UIWebView *)webView {
     NSString *messageQueueString = [webView stringByEvaluatingJavaScriptFromString:@"WebViewJavascriptBridge._fetchQueue();"];
     NSArray* messages = [messageQueueString componentsSeparatedByString:MESSAGE_SEPARATOR];
+    
+    NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+    [userInfo setObject:self forKey:JavascriptBridge];
+    [userInfo setObject:webView forKey:JavascriptBridgeWebView];
+    
     for (id message in messages) {
         [self.delegate javascriptBridge:self receivedMessage:message fromWebView:webView];
+        
+        // Post notification to observers.
+        [userInfo setObject:message forKey:JavascriptBridgeMessage];
+        [[NSNotificationCenter defaultCenter] postNotificationName:WebViewJavascriptBridgeFlushMessage object:self userInfo:userInfo];
     }
 }
 
@@ -56,64 +70,64 @@ static NSString *QUEUE_HAS_MESSAGE = @"queuehasmessage";
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView {
     NSString *js = [NSString stringWithFormat:@";(function() {"
-        "if (window.WebViewJavascriptBridge) { return; };"
-        "var _readyMessageIframe,"
-        "     _sendMessageQueue = [],"
-        "     _receiveMessageQueue = [],"
-        "     _MESSAGE_SEPERATOR = '%@',"
-        "     _CUSTOM_PROTOCOL_SCHEME = '%@',"
-        "     _QUEUE_HAS_MESSAGE = '%@';"
-        ""
-        "function _createQueueReadyIframe(doc) {"
-        "     _readyMessageIframe = doc.createElement('iframe');"
-        "     _readyMessageIframe.style.display = 'none';"
-        "     doc.documentElement.appendChild(_readyMessageIframe);"
-        "}"
-        ""
-        "function _sendMessage(message) {"
-        "     _sendMessageQueue.push(message);"
-        "     _readyMessageIframe.src = _CUSTOM_PROTOCOL_SCHEME + '://' + _QUEUE_HAS_MESSAGE;"
-        "};"
-        ""
-        "function _fetchQueue() {"
-        "     var messageQueueString = _sendMessageQueue.join(_MESSAGE_SEPERATOR);"
-        "     _sendMessageQueue = [];"
-        "     return messageQueueString;"
-        "};"
-        ""
-        "function _setMessageHandler(messageHandler) {"
-        "     if (WebViewJavascriptBridge._messageHandler) { return alert('WebViewJavascriptBridge.setMessageHandler called twice'); }"
-        "     WebViewJavascriptBridge._messageHandler = messageHandler;"
-        "     var receivedMessages = _receiveMessageQueue;"
-        "     _receiveMessageQueue = null;"
-        "     for (var i=0; i<receivedMessages.length; i++) {"
-        "         messageHandler(receivedMessages[i]);"
-        "     }"
-        "};"
-        ""
-        "function _handleMessageFromObjC(message) {"
-        "     if (_receiveMessageQueue) { _receiveMessageQueue.push(message); }"
-        "     else { WebViewJavascriptBridge._messageHandler(message); }"
-        "};"
-        ""
-        "window.WebViewJavascriptBridge = {"
-        "     setMessageHandler: _setMessageHandler,"
-        "     sendMessage: _sendMessage,"
-        "     _fetchQueue: _fetchQueue,"
-        "     _handleMessageFromObjC: _handleMessageFromObjC"
-        "};"
-        ""
-        "setTimeout(function() {"
-        "     var doc = document;"
-        "     _createQueueReadyIframe(doc);"
-        "     var readyEvent = doc.createEvent('Events');"
-        "     readyEvent.initEvent('WebViewJavascriptBridgeReady');"
-        "     doc.dispatchEvent(readyEvent);"
-        "}, 0);"
-        "})();",
-        MESSAGE_SEPARATOR,
-        CUSTOM_PROTOCOL_SCHEME,
-        QUEUE_HAS_MESSAGE];
+                    "if (window.WebViewJavascriptBridge) { return; };"
+                    "var _readyMessageIframe,"
+                    "     _sendMessageQueue = [],"
+                    "     _receiveMessageQueue = [],"
+                    "     _MESSAGE_SEPERATOR = '%@',"
+                    "     _CUSTOM_PROTOCOL_SCHEME = '%@',"
+                    "     _QUEUE_HAS_MESSAGE = '%@';"
+                    ""
+                    "function _createQueueReadyIframe(doc) {"
+                    "     _readyMessageIframe = doc.createElement('iframe');"
+                    "     _readyMessageIframe.style.display = 'none';"
+                    "     doc.documentElement.appendChild(_readyMessageIframe);"
+                    "}"
+                    ""
+                    "function _sendMessage(message) {"
+                    "     _sendMessageQueue.push(message);"
+                    "     _readyMessageIframe.src = _CUSTOM_PROTOCOL_SCHEME + '://' + _QUEUE_HAS_MESSAGE;"
+                    "};"
+                    ""
+                    "function _fetchQueue() {"
+                    "     var messageQueueString = _sendMessageQueue.join(_MESSAGE_SEPERATOR);"
+                    "     _sendMessageQueue = [];"
+                    "     return messageQueueString;"
+                    "};"
+                    ""
+                    "function _setMessageHandler(messageHandler) {"
+                    "     if (WebViewJavascriptBridge._messageHandler) { return alert('WebViewJavascriptBridge.setMessageHandler called twice'); }"
+                    "     WebViewJavascriptBridge._messageHandler = messageHandler;"
+                    "     var receivedMessages = _receiveMessageQueue;"
+                    "     _receiveMessageQueue = null;"
+                    "     for (var i=0; i<receivedMessages.length; i++) {"
+                    "         messageHandler(receivedMessages[i]);"
+                    "     }"
+                    "};"
+                    ""
+                    "function _handleMessageFromObjC(message) {"
+                    "     if (_receiveMessageQueue) { _receiveMessageQueue.push(message); }"
+                    "     else { WebViewJavascriptBridge._messageHandler(message); }"
+                    "};"
+                    ""
+                    "window.WebViewJavascriptBridge = {"
+                    "     setMessageHandler: _setMessageHandler,"
+                    "     sendMessage: _sendMessage,"
+                    "     _fetchQueue: _fetchQueue,"
+                    "     _handleMessageFromObjC: _handleMessageFromObjC"
+                    "};"
+                    ""
+                    "setTimeout(function() {"
+                    "     var doc = document;"
+                    "     _createQueueReadyIframe(doc);"
+                    "     var readyEvent = doc.createEvent('Events');"
+                    "     readyEvent.initEvent('WebViewJavascriptBridgeReady');"
+                    "     doc.dispatchEvent(readyEvent);"
+                    "}, 0);"
+                    "})();",
+                    MESSAGE_SEPARATOR,
+                    CUSTOM_PROTOCOL_SCHEME,
+                    QUEUE_HAS_MESSAGE];
     
     [webView stringByEvaluatingJavaScriptFromString:js];
     

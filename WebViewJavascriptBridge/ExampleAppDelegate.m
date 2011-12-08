@@ -1,5 +1,9 @@
 #import "ExampleAppDelegate.h"
 
+@interface ExampleAppDelegate ()
+- (void)receiveMessageFromJavascriptBridge:(NSNotification *)notification;
+@end
+
 @implementation ExampleAppDelegate
 
 @synthesize window = _window;
@@ -11,6 +15,10 @@
 
     self.webView = [[UIWebView alloc] initWithFrame:self.window.bounds];
     [self.window addSubview:self.webView];
+
+    // NSNotification received data.
+    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+    [center addObserver:self selector:@selector(receiveMessageFromJavascriptBridge:) name:WebViewJavascriptBridgeFlushMessage object:nil];
 
     self.javascriptBridge = [WebViewJavascriptBridge javascriptBridgeWithDelegate:self];
     self.webView.delegate = self.javascriptBridge;
@@ -95,6 +103,29 @@
      Save data if appropriate.
      See also applicationDidEnterBackground:.
      */
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+#pragma mark -
+#pragma mark Target action methods.
+
+/*!
+ @method receiveMessageFromJavascriptBridge:notification
+ @abstract Receive message from javascript.
+ @param notification
+ userInfo:
+ javascriptBridge    WebViewJavascriptBridge(sender).
+ webView             WebView.
+ message             javascript string(JSON, string, etc.)
+ */
+- (void)receiveMessageFromJavascriptBridge:(NSNotification *)notification
+{
+    NSDictionary *userInfo = [notification userInfo];
+    
+    //    [[userInfo objectForKey:WVJavascriptBridge]
+    //     sendMessage:@"Notification!!"
+    //     toWebView:[userInfo objectForKey:WVJBWebView]];
+    NSLog(@"NSNotification sending userInfo: %@", userInfo);
 }
 
 @end

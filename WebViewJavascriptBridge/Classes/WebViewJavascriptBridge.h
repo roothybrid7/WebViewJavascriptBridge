@@ -1,5 +1,20 @@
 #import <UIKit/UIKit.h>
 
+/*!
+ @abstract NSNotification register name for flush message.
+ @const WebViewJavascriptBridgeFlushMessage    PostNotification name of flush message.
+ */
+extern NSString *const WebViewJavascriptBridgeFlushMessage;
+/*!
+ @abstract NSNotification userInfo key names.
+ @const JavascriptBridge            javascriptBridge key.
+ @const JavascriptBridgeMessage     javascript string key.
+ @const JavascriptBridgeWebView     webView key.
+ */
+extern NSString *const JavascriptBridge;
+extern NSString *const JavascriptBridgeMessage;
+extern NSString *const JavascriptBridgeWebView;
+
 @class WebViewJavascriptBridge;
 
 @protocol WebViewJavascriptBridgeDelegate <UIWebViewDelegate>
