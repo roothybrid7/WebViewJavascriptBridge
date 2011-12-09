@@ -7,7 +7,7 @@ NSString *const kJavascriptBridgeWebView = @"webView";
 
 @interface WebViewJavascriptBridge ()
 
-@property (nonatomic,strong) NSMutableArray *startupMessageQueue;
+@property (nonatomic,retain) NSMutableArray *startupMessageQueue;
 
 - (void)_flushMessageQueueFromWebView:(UIWebView *)webView;
 - (void)_doSendMessage:(NSString*)message toWebView:(UIWebView *)webView;
