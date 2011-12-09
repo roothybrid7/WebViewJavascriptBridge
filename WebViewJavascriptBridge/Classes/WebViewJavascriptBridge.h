@@ -2,18 +2,18 @@
 
 /*!
  @abstract NSNotification register name for flush message.
- @const WebViewJavascriptBridgeFlushMessage    PostNotification name of flush message.
+ @const kWebViewJavascriptBridgeFlushMessage    PostNotification name of flush message.
  */
-extern NSString *const WebViewJavascriptBridgeFlushMessage;
+extern NSString *const kWebViewJavascriptBridgeFlushMessage;
 /*!
  @abstract NSNotification userInfo key names.
- @const JavascriptBridge            javascriptBridge key.
- @const JavascriptBridgeMessage     javascript string key.
- @const JavascriptBridgeWebView     webView key.
+ @const kJavascriptBridge            javascriptBridge key.
+ @const kJavascriptBridgeMessage     javascript string key.
+ @const kJavascriptBridgeWebView     webView key.
  */
-extern NSString *const JavascriptBridge;
-extern NSString *const JavascriptBridgeMessage;
-extern NSString *const JavascriptBridgeWebView;
+extern NSString *const kJavascriptBridge;
+extern NSString *const kJavascriptBridgeMessage;
+extern NSString *const kJavascriptBridgeWebView;
 
 @class WebViewJavascriptBridge;
 

@@ -1,9 +1,9 @@
 #import "WebViewJavascriptBridge.h"
 
-NSString *const WebViewJavascriptBridgeFlushMessage = @"WebViewFlushMessage";
-NSString *const JavascriptBridge = @"javascriptBridge";
-NSString *const JavascriptBridgeMessage = @"message";
-NSString *const JavascriptBridgeWebView = @"webView";
+NSString *const kWebViewJavascriptBridgeFlushMessage = @"WebViewFlushMessage";
+NSString *const kJavascriptBridge = @"javascriptBridge";
+NSString *const kJavascriptBridgeMessage = @"message";
+NSString *const kJavascriptBridgeWebView = @"webView";
 
 @interface WebViewJavascriptBridge ()
 
@@ -54,15 +54,15 @@ static NSString *QUEUE_HAS_MESSAGE = @"queuehasmessage";
     NSArray* messages = [messageQueueString componentsSeparatedByString:MESSAGE_SEPARATOR];
     
     NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
-    [userInfo setObject:self forKey:JavascriptBridge];
-    [userInfo setObject:webView forKey:JavascriptBridgeWebView];
+    [userInfo setObject:self forKey:kJavascriptBridge];
+    [userInfo setObject:webView forKey:kJavascriptBridgeWebView];
     
     for (id message in messages) {
         [self.delegate javascriptBridge:self receivedMessage:message fromWebView:webView];
         
         // Post notification to observers.
-        [userInfo setObject:message forKey:JavascriptBridgeMessage];
-        [[NSNotificationCenter defaultCenter] postNotificationName:WebViewJavascriptBridgeFlushMessage object:self userInfo:userInfo];
+        [userInfo setObject:message forKey:kJavascriptBridgeMessage];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kWebViewJavascriptBridgeFlushMessage object:self userInfo:userInfo];
     }
 }
 

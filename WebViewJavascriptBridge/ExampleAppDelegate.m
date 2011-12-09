@@ -18,7 +18,7 @@
 
     // NSNotification received data.
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-    [center addObserver:self selector:@selector(receiveMessageFromJavascriptBridge:) name:WebViewJavascriptBridgeFlushMessage object:nil];
+    [center addObserver:self selector:@selector(receiveMessageFromJavascriptBridge:) name:kWebViewJavascriptBridgeFlushMessage object:nil];
 
     self.javascriptBridge = [WebViewJavascriptBridge javascriptBridgeWithDelegate:self];
     self.webView.delegate = self.javascriptBridge;
